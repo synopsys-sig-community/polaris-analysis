@@ -43,7 +43,7 @@ runs:
           polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
         else
           polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode='"${{inputs.polaris_analysis_mode}}"' analyze -w -- ${{inputs.build_command}}
-        if
+        fi
       shell: bash
     - if: ${{inputs.polaris_sarif == 'true' && inputs.polaris_sarif_file != ''}}
       run: |
