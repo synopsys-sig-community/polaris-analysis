@@ -38,7 +38,7 @@ runs:
   steps:
     - name: Execute the analysis
       run: |
-        if [ ! -z ${{inputs.polaris_config_file}} && -f ${{inputs.polaris_config_file}} ]
+        if [ ! -z "${{inputs.polaris_config_file}}" ]
         then
           polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
         else
