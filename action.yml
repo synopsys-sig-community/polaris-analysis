@@ -26,7 +26,7 @@ inputs:
     required: false
     default: false
   polaris_sarif_file:
-    description: "If polaris_sarif: true, then this is used, to specify the output file with full path. Default: ${{github.workspace}}/polaris-scan-results.sarif.json"
+    description: "If polaris_sarif: true, then this is used, to specify the output file with full path. Default: github.workspace/polaris-scan-results.sarif.json"
     required: false
     default: ${{github.workspace}}/polaris-scan-results.sarif.json
   build_command:
