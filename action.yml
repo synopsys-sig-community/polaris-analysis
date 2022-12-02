@@ -6,8 +6,8 @@ branding:
   color: blue
 inputs:
   log_level:
-    description: Logging level
-    default: DEBUG
+    description: Logging level. Default is INFO.
+    default: INFO
     required: false
   polaris_config_overrides:
     description: "With this you can overriding the configuration file. More info: https://sig-docs.synopsys.com/polaris/topics/c_cli-config-overrides.html"
