@@ -44,7 +44,9 @@ runs:
         else
           polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode='"${{inputs.polaris_analysis_mode}}"' analyze -w -- ${{inputs.build_command}}
         if
+      shell: bash
     - if: ${{inputs.polaris_sarif == 'true' && inputs.polaris_sarif_file != ''}}
       run: |
         pip3 install requests polling
         python3 ${{github.action_path}}/polarisResultsToSarif.py --project="${{env.project}}" --branch="${{env.branch}}" --url=${{env.POLARIS_SERVER_URL}} --token=${{env.POLARIS_ACCESS_TOKEN}} --log_level=${{inputs.log_level}} --outputFile=${{inputs.polaris_sarif_file}}
+      shell: bash
