@@ -1,0 +1,50 @@
+name: "Polaris Analsysis"
+description: "Will analyze the source code with Polaris by using the polaris Command Line tool. https://sig-docs.synopsys.com/polaris/topics/c_cli-overview.html"
+author: Jouni Lehto
+branding:
+  icon: code
+  color: blue
+inputs:
+  log_level:
+    description: Logging level
+    default: DEBUG
+    required: false
+  polaris_config_overrides:
+    description: "With this you can overriding the configuration file. More info: https://sig-docs.synopsys.com/polaris/topics/c_cli-config-overrides.html"
+    required: false
+    default: --co analyze.coverity.cov-analyze='["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]'
+  polaris_analysis_mode:
+    description: Analysis mode will tell the action that is local or central analysis requested, Options are local and central (Default).
+    required: false
+    default: central
+  polaris_config_file:
+    description: "By giving this input, you specify which polaris.yaml file to use. If this is given, then only configurations given inside of the config file, \
+                  will be used. If not given then will set polaris server url with flag -s"
+    required: false
+  polaris_sarif:
+    description: By setting this true, you will get results output as a sarif format file. Default is false.
+    required: false
+    default: false
+  polaris_sarif_file:
+    description: "If polaris_sarif: true, then this is used, to specify the output file with full path. Default: ${{github.workspace}}/polaris-scan-results.sarif.json"
+    required: false
+    default: ${{github.workspace}}/polaris-scan-results.sarif.json
+  build_command:
+    description: Application build command. Ex. mvn clean install
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Execute the analysis
+      run: |
+        if [ ! -z ${{inputs.polaris_config_file}} && -f ${{inputs.polaris_config_file}} ]
+        then
+          polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
+        else
+          polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode='"${{inputs.polaris_analysis_mode}}"' analyze -w -- ${{inputs.build_command}}
+        if
+    - if: ${{inputs.polaris_sarif == 'true' && inputs.polaris_sarif_file != ''}}
+      run: |
+        pip3 install requests polling
+        python3 ${{github.action_path}}/polarisResultsToSarif.py --project="${{env.project}}" --branch="${{env.branch}}" --url=${{env.POLARIS_SERVER_URL}} --token=${{env.POLARIS_ACCESS_TOKEN}} --log_level=${{inputs.log_level}} --outputFile=${{inputs.polaris_sarif_file}}
