@@ -42,6 +42,7 @@ runs:
         then
           polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
         else
+          echo ${{inputs.polaris_config_overrides}}
           polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode='"${{inputs.polaris_analysis_mode}}"' analyze -w -- ${{inputs.build_command}}
         fi
       shell: bash
