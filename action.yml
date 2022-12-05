@@ -5,6 +5,14 @@ branding:
   icon: code
   color: blue
 inputs:
+  project:
+    description: Project name in Polaris, if not given then default=github.repository
+    required: false
+    default: ${{github.repository}}
+  branch:
+    description: Project branch name in Polaris, if not given then default=github.ref_name
+    required: false
+    default: ${{github.ref_name}}
   log_level:
     description: Logging level. Default is INFO.
     default: INFO
@@ -48,5 +56,5 @@ runs:
     - if: ${{inputs.polaris_sarif == 'true' && inputs.polaris_sarif_file != ''}}
       run: |
         pip3 install requests polling
-        python3 ${{github.action_path}}/polarisResultsToSarif.py --project="${{env.project}}" --branch="${{env.branch}}" --url=${{env.POLARIS_SERVER_URL}} --token=${{env.POLARIS_ACCESS_TOKEN}} --log_level=${{inputs.log_level}} --outputFile=${{inputs.polaris_sarif_file}}
+        python3 ${{github.action_path}}/polarisResultsToSarif.py --project="${{inputs.project}}" --branch="${{inputs.branch}}" --url=${{env.POLARIS_SERVER_URL}} --token=${{env.POLARIS_ACCESS_TOKEN}} --log_level=${{inputs.log_level}} --outputFile=${{inputs.polaris_sarif_file}}
       shell: bash
