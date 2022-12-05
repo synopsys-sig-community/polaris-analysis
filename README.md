@@ -22,7 +22,7 @@ This action expects that Polaris thin-client is in the runner PATH. That can be 
 These key-value pairs must be in environment values and are accessed with **${{env.key}}**
 | Key | Value | Description |
 |----------|--------|---------|
-| POLARIS_SERVER_URL | ${{env.polaris_url}} | Polaris server URL. Ex. https//polaris.com |
+| POLARIS_SERVER_URL | ${{env.polaris_url}} | Polaris server URL. Ex. https://polaris.com |
 | POLARIS_ACCESS_TOKEN | ${{env.polaris_token}} | Polaris Access Token for REST APIs |
 
 ## Usage examples
