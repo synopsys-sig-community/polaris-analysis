@@ -143,7 +143,6 @@ def getIssues(projectId, branchId, runId, limit=MAX_LIMIT, filter=None, events=F
 
             logging.debug(f'endpoint: {endpoint} , GET, params: {params}')
             response = session.get(endpoint, params=params, headers=headers)
-            logging.debug(response)
             if response.status_code != 200: logging.error(response.json()['errors'][0])
 
             line = response.json()['data'][0]['main-event-line-number']
@@ -166,7 +165,6 @@ def getIssues(projectId, branchId, runId, limit=MAX_LIMIT, filter=None, events=F
         if events:
             entry['subevents'] = subEvents
 
-        logging.debug(entry)
         dictionary.append(entry)
 
     return dictionary
@@ -374,7 +372,8 @@ def getResults(jobInfo):
                 rules.append(rule)
             #Create a new result
             result = {}
-            fullDescription = ""
+            
+            fullDescription = f'[See in Polaris]({issue["url"]})\n'
             if "description" in issue: fullDescription += f'Description: {issue["description"]}\n\n'
             if "remediation" in issue: fullDescription += f'Remediation Advice: {issue["remediation"]}\n\n'
             if "local_effect" in issue: fullDescription += f'Local effect: {issue["local_effect"]}\n\n'
