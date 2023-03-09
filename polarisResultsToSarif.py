@@ -380,7 +380,7 @@ def getResults(jobInfo):
             if "local_effect" in issue: fullDescription += f'Local effect: {issue["local_effect"]}\n\n'
             if "indicators" in issue: fullDescription += f'Indicators: {issue["indicators"]}\n\n'
             if "cwe" in issue: fullDescription += f'CWE: {issue["cwe"]}\n'
-            result['message'] = {"text": f'{fullDescription if not fullDescription == "" else "N/A"}'}
+            result['message'] = {"text": f'{fullDescription[:1000] if not fullDescription == "" else "N/A"}'}
             result['ruleId'] = rulesId
             lineNumber = f'{int(issue["line-number"]) if "line-number" in issue and issue["line-number"] is not None and not issue["line-number"] == "" and not issue["line-number"] == "null" else 1}'
             result['locations'] = [{"physicalLocation":{"artifactLocation":{"uri": issue["path"]},"region":{"startLine":int(lineNumber)}}}]
