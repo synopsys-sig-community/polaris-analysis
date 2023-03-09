@@ -2,7 +2,7 @@
 Will analyze the source code with Polaris by using the polaris Command Line tool. https://sig-docs.synopsys.com/polaris/topics/c_cli-overview.html
 
 ## Prerequisities
-This action expects that Polaris thin-client is in the runner PATH. That can be done with running the [lejouni/setup-polaris-analysis](https://github.com/lejouni/setup-polaris-analysis) first.
+This action expects that Polaris thin-client is in the runner PATH. That can be done with running the [synopsys-sig-community/setup-polaris-analysis](https://github.com/synopsys-sig-community/setup-polaris-analysis) first.
 
 ## Available Options
 | Option name | Description | Default value | Required |
@@ -29,7 +29,7 @@ These key-value pairs must be in environment values and are accessed with **${{e
 Run the Polaris analysis with given polaris config, build command and request sarif format file as a result.
 ```yaml
     - name: Analyze with Polaris
-      uses: lejouni/polaris-analysis@main
+      uses: synopsys-sig-community/polaris-analysis@main
       with:
         polaris_config_file: polaris.yml
         build_command: mvn package
@@ -41,12 +41,12 @@ Run the Polaris analysis with given polaris config, build command and request sa
 This will run the Polaris analysis and request Sarif -format report. The report will be in: ${{github.workspace}}/polaris-scan-results.sarif.json
 ```yaml
     - name: Analyze with Polaris
-      uses: lejouni/polaris-analysis@main
+      uses: synopsys-sig-community/polaris-analysis@main
       with:
         polaris_sarif: true
 ```
 
-**Full pipeline with [setup-polaris-analysis](https://github.com/lejouni/setup-polaris-analysis)**
+**Full pipeline with [setup-polaris-analysis](https://github.com/synopsys-sig-community/setup-polaris-analysis)**
 ```yaml
 name: Java CI with Maven and Polaris
 
@@ -70,13 +70,13 @@ jobs:
         cache: 'maven'
 
     - name: Set up Polaris # This will add Polaris tools into runner PATH
-      uses: lejouni/setup-polaris-analysis@main
+      uses: synopsys-sig-community/setup-polaris-analysis@main
       with:
         polaris_url: ${{secrets.POLARIS_SERVER_URL}} #Polaris server URL
         polaris_token: ${{secrets.POLARIS_ACCESS_TOKEN}} #Polaris Access Token
     
     - name: Analyze with Polaris
-      uses: lejouni/polaris-analysis@main
+      uses: synopsys-sig-community/polaris-analysis@main
       with:
         polaris_config_file: polaris.yml
         build_command: mvn package
