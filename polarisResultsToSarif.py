@@ -378,7 +378,7 @@ def getResults(jobInfo):
             result = {}
             
             fullDescription = f'[See in Polaris]({issue["url"]})\n'
-            if "description" in issue: fullDescription += f'Description: {issue["description"]}\n\n'
+            if "description" in issue: fullDescription += f'{issue["description"]}\n\n'
             result['message'] = {"text": f'{fullDescription[:1000] if not fullDescription == "" else "N/A"}'}
             result['ruleId'] = rulesId
             lineNumber = f'{int(issue["line-number"]) if "line-number" in issue and issue["line-number"] is not None and not issue["line-number"] == "" and not issue["line-number"] == "null" else 1}'
@@ -409,8 +409,8 @@ def getRuleHelpMarkdownMessage(issue):
     if "remediation" in issue: messageText += f'\n\n## Remediation\n{issue["remediation"]}\n\n'
     if "cwe" in issue:
         messageText += f"\n\n## References\n"
-        for cwe in issue["cwe"]: 
-            messageText += f"* Common Weakness Enumeration: [CWE-{cwe}](https://cwe.mitre.org/data/definitions/{cwe}.html)"
+        for cwe in issue["cwe"].split(','): 
+            messageText += f"* Common Weakness Enumeration: [CWE-{cwe}](https://cwe.mitre.org/data/definitions/{cwe}.html)n"
     return messageText
 
 def addTags(cwe):
