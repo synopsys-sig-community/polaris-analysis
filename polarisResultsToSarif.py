@@ -371,7 +371,7 @@ def getResults(jobInfo):
                 rule = {"id": rulesId, "name": issue["checker"], "helpUri": issue["url"], "shortDescription": {"text": issue["name"]}, 
                         "fullDescription": {"text": f'{ruleFullDescription[:1000] if not ruleFullDescription == "" else "N/A"}'},
                         "help":{"text":f'{ruleFullDescription[:1000] if not ruleFullDescription == "" else "N/A"}', "markdown":getRuleHelpMarkdownMessage(issue)},
-                        "properties": {"security-severity": nativeSeverityToNumber(issue["severity"].lower()), "tags": addTags(issue['cwe'])},
+                        "properties": {"security-severity": nativeSeverityToNumber(issue["severity"].lower()), "tags": addTags(issue)},
                         "defaultConfiguration": {"level" : nativeSeverityToLevel(issue["severity"].lower())}}
                 rules.append(rule)
             #Create a new result
@@ -413,11 +413,12 @@ def getRuleHelpMarkdownMessage(issue):
             messageText += f"* Common Weakness Enumeration: [CWE-{cwe}](https://cwe.mitre.org/data/definitions/{cwe}.html)\n"
     return messageText
 
-def addTags(cwe):
+def addTags(issue):
     tags = []
     tags.append("security")
-    if cwe:
-        tags.append(f'external/cwe/cwe-{cwe}')
+    if "cwe" in issue and issue["cwe"]:
+        for cwe in issue["cwe"].split(','): 
+            tags.append(f'external/cwe/cwe-{cwe}')
     return tags
 
 def getSarifJsonFooter(toolDriverName, rules):
