@@ -406,11 +406,11 @@ def getRuleHelpMarkdownMessage(issue):
     messageText = ""
     messageText += f'{issue["description"] if issue["description"] else "N/A"}'
     if "local_effect" in issue and issue['local_effect']: messageText += f"\n\n## Local effect\n{issue['local_effect']}"
-    if "remediation" in issue: messageText += f'\n\n## Remediation\n{issue["remediation"]}\n\n'
-    if "cwe" in issue:
+    if "remediation" in issue and issue["remediation"]: messageText += f'\n\n## Remediation\n{issue["remediation"]}\n\n'
+    if "cwe" in issue and issue["cwe"]:
         messageText += f"\n\n## References\n"
         for cwe in issue["cwe"].split(','): 
-            messageText += f"* Common Weakness Enumeration: [CWE-{cwe}](https://cwe.mitre.org/data/definitions/{cwe}.html)n"
+            messageText += f"* Common Weakness Enumeration: [CWE-{cwe}](https://cwe.mitre.org/data/definitions/{cwe}.html)\n"
     return messageText
 
 def addTags(cwe):
