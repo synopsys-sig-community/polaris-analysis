@@ -12,7 +12,7 @@ from os.path import exists
 import polling
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.2"
+__versionro__="0.1.3"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
@@ -358,16 +358,20 @@ def getResults(jobInfo):
     sarifIssues = {}
     if issues_data and len(issues_data) > 0:
         for issue in issues_data:
+            # logging.debug(issue)
+            # exit()
             locations = []
             #Create a new rule if its not created yet
-            rulesId = issue['checker']
+            rulesId = f"{issue['checker']}/{issue['type']}"
             ruleFullDescription = ""
             if "description" in issue: ruleFullDescription += f'Description: {issue["description"]}\n'
             if not rulesId in ruleIds:
                 rule = {}
+                logging.debug(issue)
                 rule = {"id": rulesId, "name": issue["checker"], "helpUri": issue["url"], "shortDescription": {"text": issue["name"]}, 
                         "fullDescription": {"text": f'{ruleFullDescription[:1000] if not ruleFullDescription == "" else "N/A"}'},
-                        "properties": {"security-severity": nativeSeverityToNumber(issue["severity"].lower()), "tags": ["security"]},
+                        "help":{"text":f'{ruleFullDescription[:1000] if not ruleFullDescription == "" else "N/A"}', "markdown":getRuleHelpMarkdownMessage(issue)},
+                        "properties": {"security-severity": nativeSeverityToNumber(issue["severity"].lower()), "tags": addTags(issue['cwe'])},
                         "defaultConfiguration": {"level" : nativeSeverityToLevel(issue["severity"].lower())}}
                 rules.append(rule)
             #Create a new result
@@ -377,8 +381,6 @@ def getResults(jobInfo):
             if "description" in issue: fullDescription += f'Description: {issue["description"]}\n\n'
             if "remediation" in issue: fullDescription += f'Remediation Advice: {issue["remediation"]}\n\n'
             if "local_effect" in issue: fullDescription += f'Local effect: {issue["local_effect"]}\n\n'
-            if "indicators" in issue: fullDescription += f'Indicators: {issue["indicators"]}\n\n'
-            if "cwe" in issue: fullDescription += f'CWE: {issue["cwe"]}\n'
             result['message'] = {"text": f'{fullDescription[:1000] if not fullDescription == "" else "N/A"}'}
             result['ruleId'] = rulesId
             lineNumber = f'{int(issue["line-number"]) if "line-number" in issue and issue["line-number"] is not None and not issue["line-number"] == "" and not issue["line-number"] == "null" else 1}'
@@ -401,6 +403,22 @@ def getResults(jobInfo):
             issues.append(result)
         sarifIssues['results'] = issues
     return sarifIssues, rules
+
+def getRuleHelpMarkdownMessage(issue):
+    messageText = ""
+    messageText += f'{issue["description"] if issue["description"] else "N/A"}'
+    if "local_effect" in issue: messageText += f"\n\n## Local effect\n{issue['local_effect']}"
+    if "remediation" in issue: messageText += f'\n\n## Remediation\n{issue["remediation"]}\n\n'
+    if "cwe" in issue: messageText += f"\n\n## References\n* Common Weakness Enumeration: [CWE-{issue['cwe']}](https://cwe.mitre.org/data/definitions/{issue['cwe']}.html)"
+    if "indicators" in issue: messageText += f'* Indicators: {issue["indicators"]}\n\n'
+    return messageText
+
+def addTags(cwe):
+    tags = []
+    tags.append("security")
+    if cwe:
+        tags.append(f'external/cwe/cwe-{cwe}')
+    return tags
 
 def getSarifJsonFooter(toolDriverName, rules):
     return {"driver":{"name":toolDriverName,"informationUri": f'{args.url if args.url else ""}',"version":"1.0.1","organization":"Synopsys","rules":rules}}
