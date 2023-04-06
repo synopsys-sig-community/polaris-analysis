@@ -13,7 +13,7 @@ import polling
 import hashlib
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.4"
+__versionro__="0.1.5"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
@@ -43,10 +43,18 @@ def getIssues(projectId, branchId, runId, limit=MAX_LIMIT, filter=None, events=F
     issues_included = []
 
     endpoint = baseUrl + '/api/query/v1/issues'
-    params = dict([
-        ('project-id', projectId),
-        ('include[issue][]', ['severity', 'related-indicators', 'related-taxa'])
-        ])
+    params = None
+    if args.status:
+        params = dict([
+            ('project-id', projectId),
+            ('filter[issue][status][eq]', args.status),
+            ('include[issue][]', ['severity', 'related-indicators', 'related-taxa'])
+            ])
+    else:
+        params = dict([
+            ('project-id', projectId),
+            ('include[issue][]', ['severity', 'related-indicators', 'related-taxa'])
+            ])
 
     # filter by runId or branchId but not both
     if runId is not None: params['run-id[]'] = runId
@@ -142,7 +150,6 @@ def getIssues(projectId, branchId, runId, limit=MAX_LIMIT, filter=None, events=F
             headers = {'Authorization': 'Bearer ' + jwt,
                 'Accept-Language': 'en'}
 
-            logging.debug(f'endpoint: {endpoint} , GET, params: {params}')
             response = session.get(endpoint, params=params, headers=headers)
             if response.status_code != 200: logging.error(response.json()['errors'][0])
 
@@ -182,9 +189,7 @@ def getPaginatedData(endpoint, params={}, limit=MAX_LIMIT):
     while (offset < total):
         if (logging.getLogger().isEnabledFor(logging.DEBUG)): logging.debug(f'endpoint: {endpoint} , GET, params: {params}')
         response = session.get(endpoint, params=params)
-        if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug(response)
         if response.status_code != 200: logging.error(response.json()['errors'][0])
-
         if (response.json()['data'] == []):
             # Return empty list (or 2 empty lists for issues endpoint)
             p = re.compile(r'api\/query\/v\d+\/issues')
@@ -296,7 +301,6 @@ def getJobs(projectId, branchId):
         ('filter[jobs][date][from]', timeAfter.strftime("%Y-%m-%dT%H:%M:%SZ"))
         ])
     response = session.get(endpoint, params=params)
-    if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug(response.json())
     if response.status_code != 200: logging.error(response.json()['errors'][0])
     jobs = response.json()['data'] 
     if jobs and len(jobs) > 0:
@@ -358,6 +362,7 @@ def getResults(jobInfo):
     ruleIds, rules, issues = [],[],[]
     sarifIssues = {}
     if issues_data and len(issues_data) > 0:
+        logging.debug(f'Got {len(issues_data)} issues')
         for issue in issues_data:
             # logging.debug(issue)
             # exit()
@@ -367,8 +372,6 @@ def getResults(jobInfo):
             ruleFullDescription = ""
             if "description" in issue: ruleFullDescription += f'Description: {issue["description"]}\n'
             if not rulesId in ruleIds:
-                rule = {}
-                logging.debug(issue)
                 rule = {"id": rulesId, "name": issue["checker"], "helpUri": issue["url"], "shortDescription": {"text": issue["name"]}, 
                         "fullDescription": {"text": f'{ruleFullDescription[:1000] if not ruleFullDescription == "" else "N/A"}'},
                         "help":{"text":f'{ruleFullDescription[:1000] if not ruleFullDescription == "" else "N/A"}', "markdown":getRuleHelpMarkdownMessage(issue)},
@@ -401,6 +404,8 @@ def getResults(jobInfo):
             result['codeFlows'] = codeFlowsTable
             issues.append(result)
         sarifIssues['results'] = issues
+    else:
+        logging.info(f'No issues found!')
     return sarifIssues, rules
 
 def getRuleHelpMarkdownMessage(issue):
@@ -521,6 +526,7 @@ if __name__ == '__main__':
     parser.add_argument('--jobid', help="Polaris scan jobId, if this is not give, then script will do the scan by using Polaris thin client.", default="")
     parser.add_argument('--project', help="Project name in Polaris", required=False)
     parser.add_argument('--branch', help="Branch name in Polaris", required=False)
+    parser.add_argument('--status', help="Indicates which issues are returned based on the status, if not given, then all are returned. Options: opened,closed. ", required=False)
     parser.add_argument('--incremental_results', help="File name with full path for incremental analysis result.", required=False)
     args = parser.parse_args()
     #Initializing the logger
