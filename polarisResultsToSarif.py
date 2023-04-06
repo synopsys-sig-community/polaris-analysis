@@ -10,9 +10,10 @@ from timeit import default_timer as timer
 from datetime import datetime, timedelta
 from os.path import exists
 import polling
+import hashlib
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.3"
+__versionro__="0.1.4"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
@@ -383,7 +384,7 @@ def getResults(jobInfo):
             result['ruleId'] = rulesId
             lineNumber = f'{int(issue["line-number"]) if "line-number" in issue and issue["line-number"] is not None and not issue["line-number"] == "" and not issue["line-number"] == "null" else 1}'
             result['locations'] = [{"physicalLocation":{"artifactLocation":{"uri": issue["path"]},"region":{"startLine":int(lineNumber)}}}]
-            result['partialFingerprints'] = {"primaryLocationLineHash": issue["issue-key"]}
+            result['partialFingerprints'] = {"primaryLocationLineHash": hashlib.sha256((f'{issue["issue-key"]}').encode(encoding='UTF-8')).hexdigest()}
             for event in sorted(issue['subevents'], key=lambda x: x['event-number']):
                 startline = f'{int(event["start-line"]) if "start-line" in event else int(lineNumber)}'
                 endline = f'{int(event["end-line"]) if "end-line" in event else startline}'
