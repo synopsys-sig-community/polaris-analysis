@@ -51,8 +51,10 @@ runs:
       run: |
         if [ ! -z "${{inputs.polaris_config_file}}" ]
         then
+          echo polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
           polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
         else
+          echo polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
           polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
         fi
       shell: bash
