@@ -55,7 +55,7 @@ runs:
           polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
         else
           echo polaris --co analyze.coverity.cov-analyze='["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]' -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
-          polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
+          polaris --co analyze.coverity.cov-analyze='["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]' -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
         fi
       shell: bash
     - if: ${{inputs.polaris_sarif == 'true' && inputs.polaris_sarif_file != ''}}
