@@ -20,7 +20,7 @@ inputs:
   polaris_config_overrides:
     description: "With this you can overriding the configuration file. More info: https://sig-docs.synopsys.com/polaris/topics/c_cli-config-overrides.html"
     required: false
-    default: --co analyze.coverity.cov-analyze=\'["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]\'
+    default: --co analyze.coverity.cov-analyze=["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]
   polaris_analysis_mode:
     description: Analysis mode will tell the action that is local or central analysis requested, Options are local and central (Default).
     required: false
@@ -54,7 +54,7 @@ runs:
           echo polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
           polaris -c ${{inputs.polaris_config_file}} analyze -w -- ${{inputs.build_command}}
         else
-          echo polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
+          echo polaris --co analyze.coverity.cov-analyze='["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]' -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
           polaris ${{inputs.polaris_config_overrides}} -s ${{env.POLARIS_SERVER_URL}} --co analyze.mode="${{inputs.polaris_analysis_mode}}" analyze -w -- ${{inputs.build_command}}
         fi
       shell: bash
