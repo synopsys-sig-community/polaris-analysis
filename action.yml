@@ -20,7 +20,7 @@ inputs:
   polaris_config_overrides:
     description: "With this you can overriding the configuration file. More info: https://sig-docs.synopsys.com/polaris/topics/c_cli-config-overrides.html"
     required: false
-    default: --co analyze.coverity.cov-analyze='["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]'
+    default: --co analyze.coverity.cov-analyze=\'["--enable", "HARDCODED_CREDENTIALS", "--security", "--webapp-security", "--android-security"]\'
   polaris_analysis_mode:
     description: Analysis mode will tell the action that is local or central analysis requested, Options are local and central (Default).
     required: false
