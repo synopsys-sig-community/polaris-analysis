@@ -554,7 +554,7 @@ if __name__ == '__main__':
             if jobInfo:
                 results, rules = getResults(jobInfo)
     if results and len(results) > 0 and rules and len(rules) > 0:
-        results['tool'] = getSarifJsonFooter("Polaris", rules)
+        results['tool'] = getSarifJsonFooter("Coverity on Polaris", rules)
         runs = []
         runs.append(results)
         sarif_json = getSarifJsonHeader()
