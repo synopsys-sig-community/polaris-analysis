@@ -13,14 +13,14 @@ import polling
 import hashlib
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.5"
+__versionro__="0.1.6"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
 SCAN_TIMEOUT=1800 #Polaris scan/analysis timeout in seconds 1800s = 30min
 
 def getJwt(baseUrl, token, email=None, password=None):
-    endpoint = baseUrl + '/api/auth/v1/authenticate'
+    endpoint = baseUrl + '/api/auth/v2/authenticate'
     headers = { 'Accept' : 'application/json', 'Content-Type' : 'application/x-www-form-urlencoded' }
     if token != None:
         params = { 'accesstoken' : token }
