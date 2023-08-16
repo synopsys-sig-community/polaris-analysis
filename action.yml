@@ -33,6 +33,10 @@ inputs:
     description: By setting this true, you will get results output as a sarif format file. Default is false.
     required: false
     default: "false"
+  polaris_sarif_only:
+    description: By setting this true, you will get results output as a sarif format file without running the Polaris analysis. Default is false.
+    required: false
+    default: "false"
   polaris_sarif_file:
     description: "If polaris_sarif: true, then this is used, to specify the output file with full path. Default: github.workspace/polaris-scan-results.sarif.json"
     required: false
@@ -48,6 +52,7 @@ runs:
   using: composite
   steps:
     - name: Execute the analysis
+      if: ${{inputs.polaris_sarif_only == 'false'}}
       run: |
         if [ ! -z "${{inputs.polaris_config_file}}" ]
         then

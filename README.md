@@ -14,6 +14,7 @@ This action expects that Polaris thin-client is in the runner PATH. That can be 
 | polaris_analysis_mode | Analysis mode will tell the action that is local or central analysis requested, Options are local and central (Default). | central | false |
 | polaris_config_file | By giving this input, you specify which polaris.yaml file to use. If this is given, then only configurations given inside of the config file, will be used. If not given then will set polaris server url with flag -s | - | false |
 | polaris_sarif | By setting this true, you will get results output as a sarif format file. Default is false. | false | false |
+| polaris_sarif_only | By setting this true, you will get results output as a sarif format file without running the Polaris analysis. Default is false. | false | false |
 | polaris_sarif_file | If polaris_sarif: true, then this is used, to specify the output file with full path. Default: github.workspace/polaris-scan-results.sarif.json | ${{github.workspace}}/polaris-scan-results.sarif.json | false |
 | build_command | Application build command. Ex. mvn clean install | - | false |
 
