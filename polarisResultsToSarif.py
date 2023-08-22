@@ -7,13 +7,13 @@ import sys
 from urllib.parse import urlparse
 import requests
 from timeit import default_timer as timer
-from datetime import datetime
+from datetime import datetime, timedelta
 from os.path import exists
 import polling
 import hashlib
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.7"
+__versionro__="0.1.8"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
@@ -291,12 +291,21 @@ def getProjectandBranchIds(projectName, branchName):
 
 def getJobs(projectId, branchId):
     endpoint = baseUrl + '/api/jobs/v2/jobs'
-    #Let get all jobs within the last hour
-    params = dict([
-        ('page[limit]', 10),
-        ('filter[jobs][project][id]', projectId),
-        ('filter[jobs][branch][id]', branchId)
-        ])
+    if args.newest_since_hours > 0:
+        #Let get all jobs within the given hours
+        timeAfter = datetime.now()-timedelta(hours=args.newest_since_hours)
+        params = dict([
+            ('page[limit]', 100),
+            ('filter[jobs][project][id]', projectId),
+            ('filter[jobs][branch][id]', branchId),
+            ('filter[jobs][date][from]', timeAfter.strftime("%Y-%m-%dT%H:%M:%SZ"))
+            ])
+    else:
+        params = dict([
+            ('page[limit]', 100),
+            ('filter[jobs][project][id]', projectId),
+            ('filter[jobs][branch][id]', branchId)
+            ])
     response = session.get(endpoint, params=params)
     if response.status_code != 200: logging.error(response.json()['errors'][0])
     jobs = response.json()['data'] 
@@ -523,6 +532,7 @@ if __name__ == '__main__':
     parser.add_argument('--jobid', help="Polaris scan jobId, if this is not give, then script will do the scan by using Polaris thin client.", default="")
     parser.add_argument('--project', help="Project name in Polaris", required=False)
     parser.add_argument('--branch', help="Branch name in Polaris", required=False)
+    parser.add_argument('--newest_since_hours', help="The newest scan job after given hours.", type=int, default=1, required=False)
     parser.add_argument('--status', help="Indicates which issues are returned based on the status, if not given, then all are returned. Options: opened,closed. ", required=False)
     parser.add_argument('--incremental_results', help="File name with full path for incremental analysis result.", required=False)
     args = parser.parse_args()

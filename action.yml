@@ -44,6 +44,10 @@ inputs:
   polaris_issue_status:
     description: Indicates which issues are returned based on the status, if not given, then all are returned. Options are opened,closed.
     required: false
+  polaris_newest_since_hours:
+    description: The newest scan job after given hours. Defaul is 1 hour. If you set this 0, then newest scan job from the first 100 jobs is selected.
+    required: false
+    default: 1
   build_command:
     description: Application build command. Ex. mvn clean install
     required: false
@@ -64,5 +68,5 @@ runs:
     - if: ${{inputs.polaris_sarif == 'true' && inputs.polaris_sarif_file != ''}}
       run: |
         pip3 install requests polling
-        python3 ${{github.action_path}}/polarisResultsToSarif.py --status="${{inputs.polaris_issue_status}}" --project="${{inputs.project}}" --branch="${{inputs.branch}}" --url=${{env.POLARIS_SERVER_URL}} --token=${{env.POLARIS_ACCESS_TOKEN}} --log_level=${{inputs.log_level}} --outputFile=${{inputs.polaris_sarif_file}}
+        python3 ${{github.action_path}}/polarisResultsToSarif.py --newest_since_hours=${{inputs.polaris_newest_since_hours}} --status="${{inputs.polaris_issue_status}}" --project="${{inputs.project}}" --branch="${{inputs.branch}}" --url=${{env.POLARIS_SERVER_URL}} --token=${{env.POLARIS_ACCESS_TOKEN}} --log_level=${{inputs.log_level}} --outputFile=${{inputs.polaris_sarif_file}}
       shell: bash
