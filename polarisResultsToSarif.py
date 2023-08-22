@@ -7,7 +7,7 @@ import sys
 from urllib.parse import urlparse
 import requests
 from timeit import default_timer as timer
-from datetime import datetime, timedelta
+from datetime import datetime
 from os.path import exists
 import polling
 import hashlib
@@ -292,8 +292,6 @@ def getProjectandBranchIds(projectName, branchName):
 def getJobs(projectId, branchId):
     endpoint = baseUrl + '/api/jobs/v2/jobs'
     #Let get all jobs within the last hour
-    timeAfter = datetime.now()-timedelta(hours=1)
-    logging.debug(timeAfter)
     params = dict([
         ('page[limit]', 10),
         ('filter[jobs][project][id]', projectId),
