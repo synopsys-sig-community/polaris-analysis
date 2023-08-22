@@ -13,7 +13,7 @@ import polling
 import hashlib
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.6"
+__versionro__="0.1.7"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
