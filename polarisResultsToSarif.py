@@ -297,8 +297,7 @@ def getJobs(projectId, branchId):
     params = dict([
         ('page[limit]', 100),
         ('filter[jobs][project][id]', projectId),
-        ('filter[jobs][branch][id]', branchId),
-        ('filter[jobs][date][from]', timeAfter.strftime("%Y-%m-%dT%H:%M:%SZ"))
+        ('filter[jobs][branch][id]', branchId)
         ])
     response = session.get(endpoint, params=params)
     if response.status_code != 200: logging.error(response.json()['errors'][0])
