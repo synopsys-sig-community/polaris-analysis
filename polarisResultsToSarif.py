@@ -295,7 +295,7 @@ def getJobs(projectId, branchId):
     timeAfter = datetime.now()-timedelta(hours=1)
     logging.debug(timeAfter)
     params = dict([
-        ('page[limit]', 100),
+        ('page[limit]', 10),
         ('filter[jobs][project][id]', projectId),
         ('filter[jobs][branch][id]', branchId)
         ])
