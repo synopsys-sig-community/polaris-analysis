@@ -290,38 +290,48 @@ def getProjectandBranchIds(projectName, branchName):
     return projectId, branchId
 
 def getJobs(projectId, branchId):
+    MAX_LIMIT_JOBS=500 #Max limit 500 is a max limit in API endoint.
     endpoint = baseUrl + '/api/jobs/v2/jobs'
-    if args.newest_since_hours > 0:
-        #Let get all jobs within the given hours
-        timeAfter = datetime.now()-timedelta(hours=args.newest_since_hours)
-        params = dict([
-            ('page[limit]', 100),
-            ('filter[jobs][project][id]', projectId),
-            ('filter[jobs][branch][id]', branchId),
-            ('filter[jobs][date][from]', timeAfter.strftime("%Y-%m-%dT%H:%M:%SZ"))
-            ])
-    else:
-        params = dict([
-            ('page[limit]', 100),
-            ('filter[jobs][project][id]', projectId),
-            ('filter[jobs][branch][id]', branchId)
-            ])
+    params = dict([
+        ('page[limit]', MAX_LIMIT_JOBS),
+        ('filter[jobs][project][id]', projectId),
+        ('filter[jobs][branch][id]', branchId)
+        ])
     response = session.get(endpoint, params=params)
+    logging.debug(f"Total amount of jobs done: {response.json()['meta']['total']}")
     if response.status_code != 200: logging.error(response.json()['errors'][0])
-    jobs = response.json()['data'] 
-    if jobs and len(jobs) > 0:
+    jobs = response.json() 
+    if jobs['data'] and len(jobs['data']) > 0:
+        #Check that do we have all scanning jobs or not
+        all_data = jobs['data']
+        if "total" in jobs['meta']:
+            total = jobs['meta']['total']
+            downloaded = MAX_LIMIT_JOBS
+            while total > downloaded:
+                logging.debug(f"getting next page {downloaded}/{total}")
+                params = dict([
+                    ('page[limit]', MAX_LIMIT_JOBS),
+                    ('page[offset]', downloaded),
+                    ('filter[jobs][project][id]', projectId),
+                    ('filter[jobs][branch][id]', branchId)
+                    ])
+                response = session.get(endpoint, params=params)
+                if response.status_code != 200: logging.error(response.json()['errors'][0])
+                all_data.extend(response.json()['data'])
+                downloaded += MAX_LIMIT_JOBS
         # loop over the list of jobs and sort the newest first
-        jobs.sort(key=lambda x: datetime.strptime(x['attributes']['dateCreated'], '%Y-%m-%dT%H:%M:%S.%fZ'), reverse=True)
-        state = jobs[0]['status']['state']
-        jobId = jobs[0]['id']
+        jobs['data'].sort(key=lambda x: datetime.strptime(x['attributes']['dateCreated'], '%Y-%m-%dT%H:%M:%S.%fZ'), reverse=True)
+        state = jobs['data'][0]['status']['state']
+        jobId = jobs['data'][0]['id']
+        logging.debug(f"The newest job was created: {jobs['data'][0]['attributes']['dateCreated']}")
         if not state == 'COMPLETED':
             polling.poll(lambda: checkStatus(jobId), check_success=checkSuccess, step=4, timeout=SCAN_TIMEOUT)
             return getJobInfo(jobId)
         else:
             return {
-                'projectId': jobs[0]['attributes']['projectId'].split(':')[3],
-                'branchId': jobs[0]['attributes']['branchId'].split(':')[3],
-                'runId': jobs[0]['attributes']['runId'].split(':')[3]
+                'projectId': jobs['data'][0]['attributes']['projectId'].split(':')[3],
+                'branchId': jobs['data'][0]['attributes']['branchId'].split(':')[3],
+                'runId': jobs['data'][0]['attributes']['runId'].split(':')[3]
             }
     else:
         logging.error("No scanning jobs found!")
@@ -532,7 +542,6 @@ if __name__ == '__main__':
     parser.add_argument('--jobid', help="Polaris scan jobId, if this is not give, then script will do the scan by using Polaris thin client.", default="")
     parser.add_argument('--project', help="Project name in Polaris", required=False)
     parser.add_argument('--branch', help="Branch name in Polaris", required=False)
-    parser.add_argument('--newest_since_hours', help="The newest scan job after given hours.", type=int, default=1, required=False)
     parser.add_argument('--status', help="Indicates which issues are returned based on the status, if not given, then all are returned. Options: opened,closed. ", required=False)
     parser.add_argument('--incremental_results', help="File name with full path for incremental analysis result.", required=False)
     args = parser.parse_args()
