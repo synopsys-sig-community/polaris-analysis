@@ -13,7 +13,7 @@ import polling
 import hashlib
 
 __author__ = "Jouni Lehto"
-__versionro__="0.1.8"
+__versionro__="0.1.9"
 
 baseUrl, jwt, session = None, None, None
 MAX_LIMIT=1000
@@ -438,6 +438,7 @@ def getRuleHelpMarkdownMessage(issue):
 def addTags(issue):
     tags = []
     tags.append("security")
+    tags.append("SAST")
     if "cwe" in issue and issue["cwe"]:
         for cwe in issue["cwe"].split(','): 
             tags.append(f'external/cwe/cwe-{cwe}')
