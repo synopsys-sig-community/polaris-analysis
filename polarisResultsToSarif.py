@@ -28,7 +28,7 @@ class PolarisResultsToSarif:
         self.jwt = self.__getJwt(url, token, email, password)
 
     def __getJwt(self, baseUrl, token, email, password):
-        endpoint = baseUrl + '/api/auth/v2/authenticate'
+        endpoint = f'{baseUrl}/api/auth/v2/authenticate'
         headers = { 'Accept' : 'application/json', 'Content-Type' : 'application/x-www-form-urlencoded' }
         if token != None:
             params = { 'accesstoken' : token }
@@ -69,7 +69,7 @@ class PolarisResultsToSarif:
         if filter:
             params.update(filter)
 
-        issues_data, issues_included = self.__getPaginatedData(self, endpoint, params, limit)
+        issues_data, issues_included = self.__getPaginatedData(endpoint, params, limit)
         if issues_data == []:
             return []
 
@@ -535,7 +535,7 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
         description='Get issues for a given scan job and prints out results in SARIF -format')
         parser.add_argument('--log_level', help="Will print more info... default=INFO", default="DEBUG")
-        parser.add_argument('--url', default=os.getenv('POLARIS_SERVER_URL'), help='Polaris URL')
+        parser.add_argument('--url', default=os.getenv('POLARIS_SERVER_URL'), help='Polaris URL', required=True)
         parser.add_argument('--token', default=os.getenv('POLARIS_ACCESS_TOKEN'), help='Polaris Access Token', required=True)
         parser.add_argument('--outputFile', help="Filename with path where it will be created, example: /tmp/polarisFindings.sarif.json \
                                                     if outputfile is not given, then json is printed stdout.", required=False)
